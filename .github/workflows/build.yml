@@ -3,7 +3,6 @@ name: Build and test
 on: [push]
 
 env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
 
 jobs:
@@ -16,18 +15,22 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
     
     - name: Bootstrap work environment
       shell: bash
       working-directory: ${{github.workspace}}
-      run: python3 ${{github.workspace}}/bootstrap.py
+      run: python bootstrap.py
 
     - name: Build
-      working-directory: ${{github.workspace}}/build
+      working-directory: ${{github.workspace}}/bin
       shell: bash
       run: cmake --build . --config $BUILD_TYPE
 
     - name: Test
-      working-directory: ${{github.workspace}}/build
+      working-directory: ${{github.workspace}}/bin
       shell: bash
       run: ctest --output-on-failure
