@@ -1,0 +1,33 @@
+name: Build and test
+
+on: [push]
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Bootstrap work environment
+      shell: bash
+      working-directory: ${{github.workspace}}
+      run: python3 ${{github.workspace}}/bootstrap.py
+
+    - name: Build
+      working-directory: ${{github.workspace}}/build
+      shell: bash
+      run: cmake --build . --config $BUILD_TYPE
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      shell: bash
+      run: ctest --output-on-failure

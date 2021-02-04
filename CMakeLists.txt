@@ -6,3 +6,5 @@ add_subdirectory(test)
 
 enable_testing()
 add_test(NAME lexer COMMAND robtest lexer)
+
+message(STATUS ${CMAKE_MODULE_PATH})

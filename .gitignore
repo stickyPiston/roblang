@@ -1,2 +1,9 @@
 # Build files
 bin
+
+# LLVM source (via bootstrap.py)
+llvm
+
+# Annoying files
+._*
+.DS_Store
