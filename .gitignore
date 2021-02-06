@@ -1,5 +1,6 @@
 # Build files
 bin
+Testing
 
 # LLVM source (via bootstrap.py)
 llvm

@@ -33,4 +33,4 @@ jobs:
     - name: Test
       working-directory: ${{github.workspace}}/bin
       shell: bash
-      run: ctest --output-on-failure -C Release
+      run: ctest --output-on-failure -C Debug
