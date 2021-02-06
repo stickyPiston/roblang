@@ -7,6 +7,12 @@
 #include <roblang/lexer.h>
 #include "main.h"
 
+#define stopAtFailure(success, expected, received) \
+  if (!success) { \
+    printf("Failed test at %s, received %s\n", expected, received); \
+    break; \
+  }
+
 int testTokenIdentifier() {
   srand(time(NULL));
 
@@ -30,7 +36,8 @@ int testTokenIdentifier() {
     }
     Token **tokens = NULL;
     lex(identifier, &tokens);
-    success = success && (tokens[0]->type == TOKEN_IDENTIFIER && strcmp(tokens[0]->value, identifier) == 0);
+    success = success && (tokens != NULL && tokens[0]->type == TOKEN_IDENTIFIER && strcmp(tokens[0]->value, identifier) == 0);
+    stopAtFailure(success, identifier, tokens[0]->value)
     tries--;
     free(tokens);
     free(identifier);
@@ -46,11 +53,11 @@ int testTokenNumber() {
   int tries = 100;
   while (tries > 0) {
     uint32_t randomNum = rand() % 4294967296;
-    char buffer[11];
-    snprintf(buffer, 10, "%d", randomNum);
+    char buffer[12];
+    snprintf(buffer, 11, "%d", randomNum);
     Token **tokens = NULL;
     lex(buffer, &tokens);
-    success = success && (tokens[0]->type == TOKEN_NUMBER && strcmp(tokens[0]->value, buffer) == 0);
+    success = success && (tokens != NULL && tokens[0]->type == TOKEN_NUMBER && strcmp(tokens[0]->value, buffer) == 0);
     tries--;
     free(tokens);
   }
@@ -126,7 +133,8 @@ int testTokenComments() {
     string[length - 1] = '#';
     Token **tokens = NULL;
     lex(string, &tokens);
-    success = success && (tokens[0] == NULL);
+    success = success && (tokens == NULL);
+    stopAtFailure(success, string, "NULL");
     tries--;
     free(tokens);
     free(string);
