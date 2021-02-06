@@ -28,9 +28,9 @@ jobs:
     - name: Build
       working-directory: ${{github.workspace}}/bin
       shell: bash
-      run: cmake --build . --config $BUILD_TYPE
+      run: cmake --build .
 
     - name: Test
       working-directory: ${{github.workspace}}/bin
       shell: bash
-      run: ctest --output-on-failure
+      run: ctest --output-on-failure -C Release
