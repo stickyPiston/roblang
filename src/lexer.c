@@ -97,6 +97,11 @@ int lex(char *script, Token ***array) {
       Token *token = malloc(sizeof(Token));
       *token = (Token){ .col = col, .row = row, .value = identifier, .type = TOKEN_DELIMITER };
       addToArray(*array, size, token);
+    } else if (firstChar == '"') {
+      index++;
+      addToken(script[index] != '"', TOKEN_STRINGLITERAL);
+      index++;
+      addToArray(*array, size, token);
     }
    
   }

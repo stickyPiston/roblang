@@ -7,7 +7,8 @@ typedef enum {
   TOKEN_BRACKET,
   TOKEN_ARROW,
   TOKEN_OPERATOR,
-  TOKEN_DELIMITER
+  TOKEN_DELIMITER,
+  TOKEN_STRINGLITERAL
 } TokenType;
 
 typedef struct {
