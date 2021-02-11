@@ -3,7 +3,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
-#include <unistd.h>
+#include <stdint.h>
 
 #include <roblang/parser.h>
 #include "main.h"
