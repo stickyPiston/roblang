@@ -1,0 +1,76 @@
+#
+Roblang example syntax and grammer file
+
+Roblang is a C-esque programming language, but without
+keywords. Control structures are functions and structs
+and arrays do not exist. Furthermore, there is no type
+system. And roblang uses the C standard library. Which
+means roblang code can easily be linked against C and C++
+scripts.
+
+Roblang requires the programmer to do a lot of manual
+pointer logic. That is, the developer needs to calculate
+offsets manually for structs and arrays.
+#
+
+main = (argc, argv) -> {
+  # variables do not have types #
+  value = 20;
+
+  # linked against the c lib 
+    yields 10 * 20 + 2 = 202 #
+  printf("%d\n", 10 * value + 2);
+
+  hello = (name) -> {
+    greeting = malloc(strlen(name) + strlen("Hello, ") + 1);
+    greeting = "Hello, ";
+    strcat(greeting, name);
+    greeting; # The last expression is returned #
+  };
+
+  printf("%s\n", hello("John"));
+
+  # Mathematical expressions #
+  x = 20 * (10 + 50) / 5;
+
+  ReturnAFunction = () -> {
+    (something) -> { printf("%s\n", something); };
+  };
+
+  ReturnAFunction()("Hello!");
+
+  # functions can be used inline #
+  () -> {
+    # anonymous functions can be called in an expression #
+    printf("%d", () -> { 20; }() + 50);
+  }();
+
+  # building an int array ([10, 20, 30, 40]) #
+  ints = malloc(4 * 4); # assume int is 4 bytes #
+  *ints = 10; # a "*" before means "the value at address" #
+  *(ints + 4) = 20;
+  *(ints + 8) = 30;
+  *(ints + 12) = 40;
+
+  # building a struct ({ char *name = "Hammer", int likes = 113 }) #
+  song = malloc(8 + 4) # assume char* = 8 bytes and int = 4 bytes #
+  *song = "Hammer";
+  songNameCopy = *song; # songNameCopy contains 'H' #
+  *(song + 8) = 113;
+
+  printf("The song's name is %s", *song);
+  printf("songNameCopy's content is %s", songNameCopy);
+
+  # Control flow #
+  if(value == 20, () -> {
+    puts("value is equal to 20!");
+  }, () -> {
+    puts("value is not equal to 20!");
+  });
+
+  index = 0;
+  while(() -> { index < argc; }, () -> {
+    # calculate the offset yourself, assume char* = 8 bytes #
+    printf("arg %d: %s", index, argv + index * 8); 
+  });
+};

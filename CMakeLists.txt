@@ -5,4 +5,5 @@ add_subdirectory(src)
 add_subdirectory(test)
 
 enable_testing()
-add_test(NAME lexer COMMAND robtest lexer)
+add_test(NAME lexer COMMAND lexer_tests)
+add_test(NAME parser COMMAND parser_tests)

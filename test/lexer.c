@@ -21,26 +21,14 @@ int testTokenIdentifier(void) {
   int tries = 100;
   while (tries > 0) {
     int length = (rand() % 30) + 1;
-    char *identifier = calloc(length + 1, sizeof(char));
-    char character = (rand() % 26) + 'A';
-    identifier[0] = character;
-    for (int i = 1; i < length; i++) {
-      uint8_t type = rand() % 4;
-      char character;
-      switch (type) {
-        case 0: character = rand() % 10 + '0'; break;
-        case 1: character = rand() % 26 + 'A'; break;
-        case 2: character = rand() % 26 + 'a'; break;
-        case 3: character = '_'; break;
-      }
-      identifier[i] = character;
-    }
+    char *identifier = NULL;
+    generateRandomIdentifier(identifier, length);
     Token **tokens = NULL;
-    lex(identifier, &tokens);
+    int tokensLength = lex(identifier, &tokens);
     success = success && (tokens != NULL && tokens[0]->type == TOKEN_IDENTIFIER && strcmp(tokens[0]->value, identifier) == 0);
     stopAtFailure(success, identifier, tokens[0]->value)
     tries--;
-    free(tokens);
+    freeArray(tokens, tokensLength);
     free(identifier);
   }
 
@@ -53,14 +41,12 @@ int testTokenNumber(void) {
   uint8_t success = 1;
   int tries = 100;
   while (tries > 0) {
-    uint32_t randomNum = rand() % 4294967296;
-    char buffer[12];
-    snprintf(buffer, 11, "%d", randomNum);
+    generateRandomNumber(buffer);
     Token **tokens = NULL;
-    lex(buffer, &tokens);
+    int length = lex(buffer, &tokens);
     success = success && (tokens != NULL && tokens[0]->type == TOKEN_NUMBER && strcmp(tokens[0]->value, buffer) == 0);
     tries--;
-    free(tokens);
+    freeArray(tokens, length);
   }
   return success;
 }
@@ -71,9 +57,9 @@ int testTokenBracket(void) {
   int size = sizeof(brackets) / sizeof(brackets[0]);
   for (int i = 0; i < size; i++) {
     Token **tokens = NULL;
-    lex(brackets[i], &tokens);
+    int length = lex(brackets[i], &tokens);
     success = success && (tokens[0]->type == TOKEN_BRACKET && strcmp(tokens[0]->value, brackets[i]) == 0);
-    free(tokens);
+    freeArray(tokens, length);
   }
 
   return success;
@@ -83,6 +69,7 @@ int testTokenArrow(void) {
   Token **tokens = NULL;
   lex("->", &tokens);
   int result = (tokens[0]->type == TOKEN_ARROW && strcmp(tokens[0]->value, "->") == 0);
+  free(tokens[0]);
   free(tokens);
   return result;
 }
@@ -95,6 +82,7 @@ int testTokenOperator(void) {
     Token **tokens = NULL;
     lex(operators[i], &tokens);
     success = success && (tokens[0]->type == TOKEN_OPERATOR && strcmp(tokens[0]->value, operators[i]) == 0);
+    free(tokens[0]);
     free(tokens);
   }
 
@@ -109,6 +97,7 @@ int testTokenDelimiter(void) {
     Token **tokens = NULL;
     lex(delimiters[i], &tokens);
     success = success && (tokens[0]->type == TOKEN_DELIMITER && strcmp(tokens[0]->value, delimiters[i]) == 0);
+    free(tokens[0]);
     free(tokens);
   }
 
@@ -137,7 +126,6 @@ int testTokenComments(void) {
     success = success && (tokens == NULL);
     stopAtFailure(success, string, "NULL");
     tries--;
-    free(tokens);
     free(string);
   }
 
