@@ -1,3 +1,6 @@
+#include <stdlib.h>
+
 #include <roblang/parser.h>
 
-int parse(Token **tokens, int tokensSize, Node ***nodes) { }
+Node *parseNextExpression() { return NULL; }
+Node *parseNextNode() { return NULL; }

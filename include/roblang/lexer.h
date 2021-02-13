@@ -18,6 +18,7 @@ typedef struct {
   char *value;
 } Token;
 
-int lex(char *, Token ***);
+void setScript(char *);
+Token *lexNextToken();
 
 #endif

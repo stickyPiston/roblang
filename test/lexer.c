@@ -11,7 +11,6 @@
   if (!success) { \
     printf("Failed test at %s, received %s\n", expected, received); \
     abort(); \
-    break; \
   }
 
 int testTokenIdentifier(void) {
@@ -23,12 +22,12 @@ int testTokenIdentifier(void) {
     int length = (rand() % 30) + 1;
     char *identifier = NULL;
     generateRandomIdentifier(identifier, length);
-    Token **tokens = NULL;
-    int tokensLength = lex(identifier, &tokens);
-    success = success && (tokens != NULL && tokens[0]->type == TOKEN_IDENTIFIER && strcmp(tokens[0]->value, identifier) == 0);
-    stopAtFailure(success, identifier, tokens[0]->value)
+    setScript(identifier);
+    Token *token = lexNextToken();
+    success = success && (token != NULL && token->type == TOKEN_IDENTIFIER && strcmp(token->value, identifier) == 0);
+    stopAtFailure(success, identifier, token->value)
     tries--;
-    freeArray(tokens, tokensLength);
+    free(token);
     free(identifier);
   }
 
@@ -42,11 +41,12 @@ int testTokenNumber(void) {
   int tries = 100;
   while (tries > 0) {
     generateRandomNumber(buffer);
-    Token **tokens = NULL;
-    int length = lex(buffer, &tokens);
-    success = success && (tokens != NULL && tokens[0]->type == TOKEN_NUMBER && strcmp(tokens[0]->value, buffer) == 0);
+    setScript(buffer);
+    Token *token = lexNextToken();
+    success = success && (token != NULL && token->type == TOKEN_NUMBER && strcmp(token->value, buffer) == 0);
+    stopAtFailure(success, buffer, token->value)
     tries--;
-    freeArray(tokens, length);
+    free(token);
   }
   return success;
 }
@@ -56,21 +56,22 @@ int testTokenBracket(void) {
   uint8_t success = 1;
   int size = sizeof(brackets) / sizeof(brackets[0]);
   for (int i = 0; i < size; i++) {
-    Token **tokens = NULL;
-    int length = lex(brackets[i], &tokens);
-    success = success && (tokens[0]->type == TOKEN_BRACKET && strcmp(tokens[0]->value, brackets[i]) == 0);
-    freeArray(tokens, length);
+    setScript(brackets[i]);
+    Token *token = lexNextToken();
+    success = success && (token->type == TOKEN_BRACKET && strcmp(token->value, brackets[i]) == 0);
+    stopAtFailure(success, brackets[i], token->value);
+    free(token);
   }
 
   return success;
 }
 
 int testTokenArrow(void) {
-  Token **tokens = NULL;
-  lex("->", &tokens);
-  int result = (tokens[0]->type == TOKEN_ARROW && strcmp(tokens[0]->value, "->") == 0);
-  free(tokens[0]);
-  free(tokens);
+  setScript("->");
+  Token *token = lexNextToken();
+  int result = (token->type == TOKEN_ARROW && strcmp(token->value, "->") == 0);
+  stopAtFailure(result, "->", token->value)
+  free(token);
   return result;
 }
 
@@ -79,11 +80,11 @@ int testTokenOperator(void) {
   uint8_t success = 1;
   int size = sizeof(operators) / sizeof(operators[0]);
   for (int i = 0; i < size; i++) {
-    Token **tokens = NULL;
-    lex(operators[i], &tokens);
-    success = success && (tokens[0]->type == TOKEN_OPERATOR && strcmp(tokens[0]->value, operators[i]) == 0);
-    free(tokens[0]);
-    free(tokens);
+    setScript(operators[i]);
+    Token *token = lexNextToken();
+    success = success && (token->type == TOKEN_OPERATOR && strcmp(token->value, operators[i]) == 0);
+    stopAtFailure(success, operators[i], token->value)
+    free(token);
   }
 
   return success;
@@ -94,11 +95,11 @@ int testTokenDelimiter(void) {
   uint8_t success = 1;
   int size = sizeof(delimiters) / sizeof(delimiters[0]);
   for (int i = 0; i < size; i++) {
-    Token **tokens = NULL;
-    lex(delimiters[i], &tokens);
-    success = success && (tokens[0]->type == TOKEN_DELIMITER && strcmp(tokens[0]->value, delimiters[i]) == 0);
-    free(tokens[0]);
-    free(tokens);
+    setScript(delimiters[i]);
+    Token *token = lexNextToken();
+    success = success && (token->type == TOKEN_DELIMITER && strcmp(token->value, delimiters[i]) == 0);
+    stopAtFailure(success, delimiters[i], token->value);
+    free(token);
   }
 
   return success;
@@ -121,12 +122,13 @@ int testTokenComments(void) {
       } while (character == '#');
     }
     string[length - 1] = '#';
-    Token **tokens = NULL;
-    lex(string, &tokens);
-    success = success && (tokens == NULL);
-    stopAtFailure(success, string, "NULL");
+    setScript(string);
+    Token *token = lexNextToken();
+    success = success && (token == NULL);
+    if (!success) abort();
     tries--;
     free(string);
+    free(token);
   }
 
   return success; 
@@ -149,15 +151,15 @@ int testTokenStringLiteral(void) {
       } while (character == '"' || character == '\\');
     }
     string[length - 1] = '"';
-    Token **tokens = NULL;
-    lex(string, &tokens);
+    setScript(string);
+    Token *token = lexNextToken();
     char *filteredString = calloc(length, sizeof(char));
     strcpy(filteredString, string + 1);
     filteredString[length - 2] = '\0';
-    success = success && (tokens[0]->type == TOKEN_STRINGLITERAL && strcmp(tokens[0]->value, filteredString) == 0);
-    stopAtFailure(success, tokens[0]->value, filteredString);
+    success = success && (token->type == TOKEN_STRINGLITERAL && strcmp(token->value, filteredString) == 0);
+    stopAtFailure(success, token->value, filteredString);
     tries--;
-    free(tokens);
+    free(token);
     free(string); free(filteredString);
   }
 

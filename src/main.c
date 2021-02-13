@@ -5,9 +5,14 @@
 // test code (will be removed)
 int main(int argc, char **argv) {
   if (argc < 2) return 1;
-  Token **tokens = NULL;
-  lex(argv[1], &tokens);
-  printf("%s\n", "This is the roblang main executable");
-  printf("The output from the lexer is %s, type: %d\n", tokens[0]->value, tokens[0]->type);
+
+  setScript(argv[1]);
+  Token *token = NULL;
+  while (1) {
+    token = lexNextToken();
+    if (token == NULL) break;
+    printf("%s\n", token->value);
+  }
+
   return 0;
 }

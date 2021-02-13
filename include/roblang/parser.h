@@ -11,7 +11,9 @@ typedef enum {
   NODE_FUNCTIONCALL,
   NODE_IDENTIFIER,
   NODE_NUMBER,
-  NODE_STRINGLITERAL
+  NODE_STRINGLITERAL,
+  NODE_BRACKET,
+  NODE_NONE
 } NodeType;
 
 struct Node;
@@ -36,7 +38,7 @@ typedef enum {
   BINOP_NEQ,  // !=
   BINOP_NOT,  // !
   BINOP_VAL,  // *string
-  BINOP_BNOT
+  BINOP_BNOT  // ~
 } BinopType;
 
 typedef struct {
@@ -70,6 +72,10 @@ typedef struct {
   char *value;
 } StringLiteralNode;
 
+typedef struct {
+  char bracket;
+} BracketNode;
+
 typedef struct Node {
   int col;
   int row;
@@ -81,9 +87,11 @@ typedef struct Node {
     IdentifierNode    *identifierNode;
     NumberNode        *numberNode;
     StringLiteralNode *stringLiteralNode;
+    BracketNode       *bracketNode;
   } content;
 } Node;
 
-int parse(Token **tokens, int tokensSize, Node ***nodes);
+Node *parseNextNode();
+Node *parseNextExpression();
 
 #endif
