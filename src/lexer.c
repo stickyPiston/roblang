@@ -23,8 +23,8 @@
       Token *token = malloc(sizeof(Token)); \
       *token = (Token){ .col = col, .row = row, .value = identifier, .type = tokenType }; \
 
-static int lexIndex = 0, col = 1, row = 1;
-static char *script = NULL;
+int lexIndex = 0, col = 1, row = 1;
+char *script = NULL;
 
 void setScript(char *set) {
   script = set;
@@ -59,14 +59,16 @@ Token *lexNextToken() {
     addToken(isdigit(script[lexIndex]), TOKEN_NUMBER);
     return token;
   } else if (firstChar == '(' || firstChar == ')' || firstChar == '{' || firstChar == '}' || firstChar == '[' || firstChar == ']') { // bracket
-    char identifier[2] = { firstChar, '\0' };
+    char *identifier = calloc(2, 1);
+    identifier[0] = firstChar;
     lexIndex++; col++;
     Token *token = malloc(sizeof(Token));
     *token = (Token){ .col = col, .row = row, .value = identifier, .type = TOKEN_BRACKET };
     return token;
   } else if (firstChar == '-' && script[lexIndex + 1] == '>') { // arrow
     lexIndex += 2; col += 2;
-    char *identifier = "->";
+    char *identifier = calloc(3, 1);
+    strcpy(identifier, "->");
     Token *token = malloc(sizeof(Token));
     *token = (Token){ .col = col, .row = row, .value = identifier, .type = TOKEN_ARROW };
     return token;
@@ -74,7 +76,7 @@ Token *lexNextToken() {
     firstChar == '+' || firstChar == '-' || firstChar == '*' ||
     firstChar == '/' || firstChar == '<' || firstChar == '>' ||
     firstChar == '=' || firstChar == '!' || firstChar == '&' ||
-    firstChar == '|'
+    firstChar == '|' || firstChar == '~'
   ) { // operator
     char *identifier = NULL;
     if (
@@ -98,7 +100,8 @@ Token *lexNextToken() {
     *token = (Token){ .col = col, .row = row, .value = identifier, .type = TOKEN_OPERATOR };
     return token;
   } else if (firstChar == ';' || firstChar == ',') { // delimiter
-    char identifier[2] = { firstChar, '\0' };
+    char *identifier = calloc(2, 1);
+    identifier[0] = firstChar;
     lexIndex++; col++;
     Token *token = malloc(sizeof(Token));
     *token = (Token){ .col = col, .row = row, .value = identifier, .type = TOKEN_DELIMITER };
@@ -114,4 +117,11 @@ Token *lexNextToken() {
   }
 
   return NULL;
+}
+
+Token *peekNextToken() {
+  int savedIndex = lexIndex, savedCol = col, savedRow = row;
+  Token *token = lexNextToken();
+  lexIndex = savedIndex; col = savedCol; row = savedRow;
+  return token;
 }

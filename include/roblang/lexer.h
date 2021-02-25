@@ -20,5 +20,6 @@ typedef struct {
 
 void setScript(char *);
 Token *lexNextToken();
+Token *peekNextToken();
 
 #endif

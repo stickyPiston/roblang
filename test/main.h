@@ -27,15 +27,7 @@ typedef struct {
   char character = (rand() % 26) + 'A'; \
   identifier[0] = character; \
   for (int i = 1; i < length; i++) { \
-    uint8_t type = rand() % 4; \
-    char character; \
-    switch (type) { \
-      case 0: character = rand() % 10 + '0'; break; \
-      case 1: character = rand() % 26 + 'A'; break; \
-      case 2: character = rand() % 26 + 'a'; break; \
-      case 3: character = '_'; break; \
-    } \
-    identifier[i] = character; \
+    identifier[i] = rand() % 25 + 'a'; break; \
   }
 
 #define generateRandomNumber(buffer) \

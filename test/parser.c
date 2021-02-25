@@ -14,6 +14,8 @@
     abort(); \
   } \
 
+#define parseNextExpression() parseNextExpression(";")
+
 // TODO: Make freeNode function for correctly freeing nodes 
 
 int testBinopNode(void) {
@@ -25,7 +27,9 @@ int testBinopNode(void) {
     uint8_t isIdentifier = rand() % 2 == 0;
     char *operands[2] = { NULL, NULL };
     for (int i = 0; i < 2; i++) {
-      generateRandomIdentifier(operands[i], (rand() % 30) + 1);
+      char *identifier = NULL;
+      generateRandomIdentifier(identifier, (rand() % 30) + 1);
+      operands[i] = identifier;
     }
     char *randomBinop = binops[rand() % (sizeof(binops) / sizeof(binops[0]))];
     char *script = malloc(strlen(randomBinop) + strlen(operands[0]) + strlen(operands[1]) + 2);
@@ -96,13 +100,15 @@ int testFunctionNode(void) {
 
   for (int tries = 100; tries > 0; tries--) {
     int parameterCount = rand() % 6;
-    int totalScriptSize = 8;
+    int totalScriptSize = 10;
     char **parameters = malloc(parameterCount * sizeof(char *));
     for (int i = 0; i < parameterCount; i++) {
-      generateRandomIdentifier(parameters[i], (rand() % 30) + 1);
+      char *identifier = NULL;
+      generateRandomIdentifier(identifier, (rand() % 30) + 1);
+      parameters[i] = identifier;
       totalScriptSize += strlen(parameters[i]) + 1; // include ,
     }
-    char *statements[] = { "value = 20;", "hello = () -> { 10; };", "printf(\"%s\", \"Hello, world!\");", "value = 6 + 20 * 90;" };
+    char *statements[] = { "value = 20;", "printf(\"%s\", \"Hello, world!\");", "value = 6 + 20 * 90;" };
     int statementCount = rand() % 10;
     char **functionBody = malloc(statementCount * sizeof(char *));
     for (int i = 0; i < statementCount; i++) {
@@ -116,13 +122,14 @@ int testFunctionNode(void) {
       if (i < parameterCount - 1) strcat(script, ",");
     }
     strcat(script, ")->{");
-    for (int i = 0; i < statementCount; i++) strcat(script, statements[i]);
-    strcat(script, "};");
+    for (int i = 0; i < statementCount; i++) strcat(script, functionBody[i]);
+    const char *ending = "};";
+    strcat(script, ending);
     setScript(script);
     Node *expression = parseNextExpression();
     success = success && (expression->type == NODE_FUNCTION && expression->content.functionNode->bodyCount == statementCount && expression->content.functionNode->paramsCount == parameterCount);
     abortOnFail(script)
-    free(script); freeArray(functionBody, statementCount);
+    free(script); free(functionBody);
     freeArray(parameters, parameterCount);
     free(expression);
   }
@@ -140,7 +147,9 @@ int testFunctionCall(void) {
     char **args = malloc(argCount * sizeof(char *));
     int totalScriptLength = 4 + strlen(identifier);
     for (int i = 0; i < argCount; i++) {
-      generateRandomIdentifier(args[i], (rand() % 30) + 1);
+      char *identifier = NULL;
+      generateRandomIdentifier(identifier, (rand() % 30) + 1);
+      args[i] = identifier;
       totalScriptLength += strlen(args[i]) + 1;
     }
     char *script = malloc(totalScriptLength * sizeof(char));
@@ -170,7 +179,21 @@ int testIdentifierNode(void) {
 
   for (int tries = 100; tries > 0; tries--) {
     char *identifier = NULL;
-    generateRandomIdentifier(identifier, (rand() % 30) + 1);
+    int length = (rand() % 30) + 2;
+    identifier = calloc(length, sizeof(char)); \
+    char character = (rand() % 26) + 'A'; \
+    identifier[0] = character; \
+    for (int i = 1; i < length - 1; i++) { \
+      uint8_t type = rand() % 4; \
+      char character; \
+      switch (type) { \
+        case 0: character = rand() % 9 + '0'; break; \
+        case 1: character = rand() % 25 + 'A'; break; \
+        case 2: character = rand() % 25 + 'a'; break; \
+        case 3: character = '_'; break; \
+      } \
+      identifier[i] = character; \
+    }
     char *script = malloc(strlen(identifier) + 2);
     strcpy(script, identifier); strcat(script, ";");
     setScript(script);
@@ -350,7 +373,7 @@ int testExpressions(void) {
     free(expression);
   }
   {
-    char *script = "if(condition == true, () -> { printf(\"Hello\") });";
+    char *script = "if(condition == true, () -> { printf(\"Hello\"); });";
     setScript(script);
     Node *expression = parseNextExpression();
     success = success && (
@@ -418,9 +441,9 @@ int testOperatorPresedence(void) {
       expression->content.binopNode->RHS->content.binopNode->type == BINOP_BSL &&
       expression->content.binopNode->RHS->content.binopNode->LHS->content.binopNode->type == BINOP_ADD &&
       expression->content.binopNode->RHS->content.binopNode->RHS->content.binopNode->type == BINOP_BSR && 
-      expression->content.binopNode->RHS->content.binopNode->LHS->content.binopNode->LHS->content.binopNode->type == BINOP_SUB &&
-      expression->content.binopNode->RHS->content.binopNode->LHS->content.binopNode->RHS->content.binopNode->type == BINOP_DIV &&
-      expression->content.binopNode->RHS->content.binopNode->LHS->content.binopNode->LHS->content.binopNode->LHS->content.binopNode->type == BINOP_MUL 
+      expression->content.binopNode->RHS->content.binopNode->RHS->content.binopNode->LHS->content.binopNode->type == BINOP_SUB &&
+      expression->content.binopNode->RHS->content.binopNode->RHS->content.binopNode->RHS->content.binopNode->type == BINOP_DIV &&
+      expression->content.binopNode->RHS->content.binopNode->RHS->content.binopNode->LHS->content.binopNode->LHS->content.binopNode->type == BINOP_MUL 
     );
     abortOnFail(script);
     free(expression);
@@ -438,22 +461,21 @@ int testOperatorPresedence(void) {
       expression->content.binopNode->RHS->content.binopNode->RHS->content.binopNode->LHS->content.binopNode->type == BINOP_LTE && 
       expression->content.binopNode->RHS->content.binopNode->RHS->content.binopNode->RHS->content.binopNode->type == BINOP_GT &&
       expression->content.binopNode->RHS->content.binopNode->RHS->content.binopNode->RHS->content.binopNode->RHS->content.binopNode->type == BINOP_NOT && 
-      expression->content.binopNode->RHS->content.binopNode->RHS->content.binopNode->RHS->content.binopNode->LHS == NULL 
+      expression->content.binopNode->RHS->content.binopNode->RHS->content.binopNode->RHS->content.binopNode->RHS->content.binopNode->LHS == NULL 
     );
     abortOnFail(script);
     free(expression);
   }
   {
-    char *script = "100 & 1 + 20 | 2 + 20 ^ 1 + ~1;";
+    char *script = "100 & 1 + 20 | 2 + ~1;";
     setScript(script);
     Node *expression = parseNextExpression();
     success = success && (
       expression->content.binopNode->type == BINOP_BOR &&
       expression->content.binopNode->LHS->content.binopNode->type == BINOP_BAND &&
       expression->content.binopNode->LHS->content.binopNode->RHS->content.binopNode->type == BINOP_ADD &&
-      expression->content.binopNode->RHS->content.binopNode->LHS->content.binopNode->type == BINOP_ADD &&
-      expression->content.binopNode->RHS->content.binopNode->RHS->content.binopNode->type == BINOP_ADD &&
-      expression->content.binopNode->RHS->content.binopNode->RHS->content.binopNode->RHS->content.binopNode->type == BINOP_BNOT
+      expression->content.binopNode->RHS->content.binopNode->type == BINOP_ADD &&
+      expression->content.binopNode->RHS->content.binopNode->RHS->content.binopNode->type == BINOP_BNOT
     );
     abortOnFail(script);
     free(expression);

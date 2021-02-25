@@ -12,11 +12,24 @@ typedef enum {
   NODE_IDENTIFIER,
   NODE_NUMBER,
   NODE_STRINGLITERAL,
-  NODE_BRACKET,
   NODE_NONE
 } NodeType;
 
+typedef enum {
+  CHUNK_BINOP,
+  CHUNK_FUNCTION,
+  CHUNK_FUNCTIONCALL,
+  CHUNK_IDENTIFIER,
+  CHUNK_NUMBER,
+  CHUNK_STRINGLITERAL,
+  CHUNK_BRACKET,
+  CHUNK_DELIMITER,
+  CHUNK_EXPRESSION,
+  CHUNK_NONE
+} ChunkType;
+
 struct Node;
+struct Chunk;
 
 typedef enum {
   BINOP_ASGN, // =
@@ -38,8 +51,50 @@ typedef enum {
   BINOP_NEQ,  // !=
   BINOP_NOT,  // !
   BINOP_VAL,  // *string
-  BINOP_BNOT  // ~
+  BINOP_BNOT, // ~
+  BINOP_NONE
 } BinopType;
+
+typedef struct {
+  BinopType type;
+} BinopChunk;
+
+typedef struct {
+  char *name;
+} IdentifierChunk;
+
+typedef struct {
+  int value;
+} NumberChunk;
+
+typedef struct {
+  char *value;
+} StringLiteralChunk;
+
+typedef struct {
+  char bracket;
+} BracketChunk;
+
+typedef struct {
+  char delimiter;
+} DelimiterChunk;
+
+typedef struct {
+  char **params;
+  int paramsCount;
+  struct Node **body;
+  int bodyLength;
+} FunctionChunk;
+
+typedef struct {
+  struct Node **args;
+  int argsCount;
+  struct Chunk *callee;
+} FunctionCallChunk;
+
+typedef struct {
+  struct Node *expression;
+} ExpressionChunk;
 
 typedef struct {
   struct Node *LHS;
@@ -72,9 +127,22 @@ typedef struct {
   char *value;
 } StringLiteralNode;
 
-typedef struct {
-  char bracket;
-} BracketNode;
+typedef struct Chunk {
+  int col;
+  int row;
+  ChunkType type;
+  union {
+    BinopChunk          *binopChunk;
+    IdentifierChunk     *identifierChunk;
+    NumberChunk         *numberChunk;
+    StringLiteralChunk  *stringLiteralChunk;
+    BracketChunk        *bracketChunk;
+    DelimiterChunk      *delimiterChunk;
+    FunctionChunk       *functionChunk;
+    FunctionCallChunk   *functionCallChunk;
+    ExpressionChunk     *expressionChunk;
+  } content;
+} Chunk;
 
 typedef struct Node {
   int col;
@@ -87,11 +155,11 @@ typedef struct Node {
     IdentifierNode    *identifierNode;
     NumberNode        *numberNode;
     StringLiteralNode *stringLiteralNode;
-    BracketNode       *bracketNode;
   } content;
 } Node;
 
-Node *parseNextNode();
-Node *parseNextExpression();
+Chunk *parseNextChunk();
+Node *parseNextExpression(char *delimiter);
+Node *arrangeChunksIntoNode(Chunk **, int);
 
 #endif

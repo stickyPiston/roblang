@@ -17,6 +17,7 @@ main = (argc, argv) -> {
   # variables do not have types #
   value = 20;
 
+  value2 = if(cond, # true #() -> { 10; }, # false #() -> { 20; }) * 10; # (cond ? 10 : 20) * 10 #
   # linked against the c lib 
     yields 10 * 20 + 2 = 202 #
   printf("%d\n", 10 * value + 2);
