@@ -7,6 +7,7 @@
 
 extern int lexIndex;
 extern int row, col;
+extern char *script;
 Chunk *prevChunk = NULL;
 char lastDelimiter;
 
@@ -229,7 +230,9 @@ const BinopType presedenceTable[] = { BINOP_ASGN, BINOP_OR, BINOP_AND, BINOP_BOR
 const int presedenceTableSize = sizeof(presedenceTable) / sizeof(presedenceTable[0]);
 
 Node *parseNextExpression(char *delimiter) {
-  // TODO: Turn tokens into temporary nodes
+
+  if (lexIndex >= strlen(script)) return NULL;
+
   prevChunk = NULL;
   Chunk **chunks = NULL;
   int size = 0;

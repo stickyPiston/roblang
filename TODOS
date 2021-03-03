@@ -1,0 +1,11 @@
+// TODO: Build an opcode table for support for multiple systems
+// TODO: Add support for generating multiple object file formats
+// TODO: Add function for retrieving symbols in the symtable
+// TODO: Add funtionality for reading files
+// TODO: Add more binops
+// TODO: Add support for more complex expressions
+// TODO: Make codegenFunctionCall() function
+// TODO: Make generator for anonymous function names (e.g. anonymous_1, anonymous_2)
+// TODO: Check if function contains a function call, then change the function """header"""
+// TODO: Return the result of the last statement reliably
+
