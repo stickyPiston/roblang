@@ -1,9 +1,9 @@
 # Build files
 bin
-Testing
+out.o
 
-# LLVM source (via bootstrap.py)
-llvm
+# Experimental tests
+experimental
 
 # Annoying files
 ._*

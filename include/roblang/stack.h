@@ -3,9 +3,11 @@
 
 #include <inttypes.h>
 
+typedef uint8_t Offset;
+
 typedef struct {
   char *label;
-  uint16_t offset;
+  Offset offset;
 } Variable;
 
 typedef struct {
@@ -13,7 +15,8 @@ typedef struct {
   int size;
 } Stack;
 
-uint16_t stack_allocate(char *);
+Offset    stack_allocate(char *);
 Variable *findInStack(char *);
+void      stack_deallocate();
 
 #endif
