@@ -1,5 +1,9 @@
-hello = () -> {
-  x = 2;
-  y = 20;
-  y << x;
+yield_number = () -> {
+  2;
+};
+
+main = () -> {
+  2
+  <<  yield_number()
+  + 1;
 };

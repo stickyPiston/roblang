@@ -73,5 +73,6 @@ main = (argc, argv) -> {
   while(() -> { index < argc; }, () -> {
     # calculate the offset yourself, assume char* = 8 bytes #
     printf("arg %d: %s", index, argv + index * 8); 
+    index = index + 1;
   });
 };

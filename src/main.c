@@ -4,6 +4,8 @@
 #include <roblang/program.h>
 #include <roblang/file.h>
 
+#include <stdlib.h>
+
 extern Program program;
 
 int main(int argc, char **argv) {
@@ -11,7 +13,11 @@ int main(int argc, char **argv) {
 
   setScript(readFile(argv[1]));
 
-  codegenBinop(parseNextExpression(";"));
+  while (1) {
+    Node *node = parseNextExpression(";");
+    if (node == NULL) break;
+    codegenNextTop(node);
+  }
 
   outputObjectFile();
 

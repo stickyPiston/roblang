@@ -3,9 +3,17 @@
 
 #include <mach-o/nlist.h>
 
+typedef enum {
+  SYMBOL_LOCAL,
+  SYMBOL_EXTERN,
+  SYMBOL_UNDEFINED
+} SymbolType;
+
 typedef struct {
   char *name;
   int address;
+  int stringTableIndex;
+  SymbolType type;
 } Symbol;
 
 typedef struct {
@@ -18,22 +26,8 @@ typedef struct {
   int size;
 } StringTable;
 
-/**
- * Function that adds a symbol to the global symbol table
- * @returns The index of the newly added symbol
- */
-int addEntryToSymTable(char *name, int address);
-
-int getSymTableSize();
-
-/**
- * @returns The symbol table in the format for the mach-o object files
- */
-struct nlist_64 *getSymTable();
-
-/**
- * @returns The string table in useable format for mach-o object files
- */
-StringTable *getStringTable();
+int addEntryToSymTable(char *name, int address, SymbolType type);
+int findInSymTable(char *name);
+void addToStringTable(Symbol *symbol);
 
 #endif

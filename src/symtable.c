@@ -3,64 +3,55 @@
 #include <stdlib.h>
 #include <string.h>
 
-static SymTable table;
+SymTable symTable = { NULL, 0 };
+StringTable stringTable = { NULL, 0 };
 
-int addEntryToSymTable(char *name, int address) {
+int addEntryToSymTable(char *name, int address, SymbolType type) {
   char *symname = malloc(strlen(name) + 2);
   strcpy(symname, "_"); strcat(symname, name);
-  if (table.size == 0) {
-    table.symbols = malloc(sizeof(Symbol));
-    table.symbols[table.size++] = (Symbol){ symname, address };
+
+  if (symTable.size == 0) {
+    symTable.symbols = malloc(sizeof(Symbol));
+    Symbol symbol = (Symbol){ symname, address, 0, type };
+    addToStringTable(&symbol);
+    symTable.symbols[symTable.size++] = symbol;
   } else {
-    table.symbols = realloc(table.symbols, ++table.size * sizeof(Symbol));
-    table.symbols[table.size - 1] = (Symbol){ symname, address };
+    symTable.symbols = realloc(symTable.symbols, ++symTable.size * sizeof(Symbol));
+    Symbol symbol = (Symbol){ symname, address, 0, type };
+    addToStringTable(&symbol);
+    symTable.symbols[symTable.size - 1] = symbol;
   }
-  return table.size - 1;
+  return symTable.size - 1;
 }
 
-int getSymTableSize() {
-  return table.size;
-}
-
-struct nlist_64 *getSymTable() {
-  struct nlist_64 *abiTable = malloc(table.size * sizeof(struct nlist_64 *));
-  for (int i = 0; i < table.size; i++) {
-    struct nlist_64 symtabEntry = (struct nlist_64){
-      .n_un.n_strx = 1,
-      .n_type      = 0x0f,
-      .n_sect      = 1,
-      .n_desc      = 0x0,
-      .n_value     = 0x0
-    };
-    abiTable[i] = symtabEntry;
+int findInSymTable(char *name) {
+  for (int i = 0; i < symTable.size; i++) {
+    if (strcmp(symTable.symbols[i].name, name) == 0) return i;
   }
-  return abiTable;
+  return -1;
 }
 
-StringTable *getStringTable() {
-  char *stringTable = NULL; int index = 0; int size = 0;
-  for (int i = 0; i < table.size; i++) {
-    if (stringTable == NULL) {
-      stringTable = calloc(strlen(table.symbols[i].name) + 2 + 8 - (strlen(table.symbols[i].name) + 1) % 8, 1);
-      size += strlen(table.symbols[i].name) + 2 + 8 - (strlen(table.symbols[i].name) + 1) % 8;
-      stringTable[index++] = '\0';
-      for (int j = 0; j < strlen(table.symbols[i].name); j++) {
-        stringTable[index++] = table.symbols[i].name[j];
-      }
-      stringTable[index++] = '\0';
-    } else {
-      stringTable = realloc(stringTable, size + strlen(table.symbols[i].name) + 2 + 8 - (strlen(table.symbols[i].name) + 1) % 8);
-      memset(stringTable + size, 0, strlen(table.symbols[i].name) + 2 + 8 - (strlen(table.symbols[i].name) + 1) % 8);
-      size += strlen(table.symbols[i].name) + 2 + 8 - (strlen(table.symbols[i].name) + 1) % 8;
-      stringTable[index++] = '\0';
-      for (int j = 0; j < strlen(table.symbols[i].name); j++) {
-        stringTable[index++] = table.symbols[i].name[j];
-      }
-      stringTable[index++] = '\0';
+void addToStringTable(Symbol *symbol) {
+  if (stringTable.string == NULL) {
+    int index = 0;
+    stringTable.string = calloc(strlen(symbol->name) + 2 + 8 - (strlen(symbol->name) + 1) % 8, 1);
+    symbol->stringTableIndex = stringTable.size;
+    stringTable.size += strlen(symbol->name) + 2 + 8 - (strlen(symbol->name) + 1) % 8;
+    stringTable.string[index++] = '\0';
+    for (int j = 0; j < strlen(symbol->name); j++) {
+      stringTable.string[index++] = symbol->name[j];
     }
+    stringTable.string[index++] = '\0';
+  } else {
+    int index = stringTable.size;
+    stringTable.string = realloc(stringTable.string, stringTable.size + strlen(symbol->name) + 2 + 8 - strlen(symbol->name) % 8);
+    symbol->stringTableIndex = stringTable.size;
+    memset(stringTable.string + stringTable.size, 0, strlen(symbol->name) + 2 + 8 - (strlen(symbol->name) + 1) % 8);
+    stringTable.size += strlen(symbol->name) + 2 + 8 - (strlen(symbol->name) + 1) % 8;
+    stringTable.string[index++] = '\0';
+    for (int j = 0; j < strlen(symbol->name); j++) {
+      stringTable.string[index++] = symbol->name[j];
+    }
+    stringTable.string[index++] = '\0';
   }
-
-  StringTable *table = malloc(sizeof(*table));
-  *table = (StringTable){ stringTable, size - 1 };
-  return table;
 }

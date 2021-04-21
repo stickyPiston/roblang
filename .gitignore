@@ -8,3 +8,4 @@ experimental
 # Annoying files
 ._*
 .DS_Store
+.vscode

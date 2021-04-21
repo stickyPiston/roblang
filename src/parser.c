@@ -140,6 +140,7 @@ Chunk *parseNextChunk() {
         if (strcmp(peekNextToken()->value, ")") == 0) {
           lexNextToken(); // eat )
         } else {
+          lastDelimiter = '\0';
           while (lastDelimiter != ')') {
             if (argsSize == 0) {
               args = malloc(sizeof(*args));
@@ -243,7 +244,9 @@ Node *parseNextExpression(char *delimiter) {
   while (1) {
     int needToBreak = 0;
     for (int i = 0; i < delimiterCount; i++) {
-      if (strcmp(peekNextToken()->value, (char[]){delimiter[i], '\0'}) == 0) {
+      Token *nextToken = peekNextToken();
+      if (nextToken == NULL) return NULL;
+      if (strcmp(nextToken->value, (char[]){delimiter[i], '\0'}) == 0) {
         needToBreak = 1;
         lastDelimiter = delimiter[i];
         break;
