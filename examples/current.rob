@@ -1,9 +1,9 @@
-yield_number = () -> {
-  2;
-};
-
 main = () -> {
-  2
-  <<  yield_number()
-  + 1;
+  hello = 10;
+  world = 20;
+  if(hello > world, () -> {
+    return(hello);
+  }, () -> {
+    return(world);
+  });
 };

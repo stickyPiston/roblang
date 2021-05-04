@@ -5,6 +5,9 @@ out.o
 # Experimental tests
 experimental
 
+# LLVM
+llvm
+
 # Annoying files
 ._*
 .DS_Store

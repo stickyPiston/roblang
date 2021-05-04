@@ -52,7 +52,7 @@ Token *lexNextToken() {
     addToken(script[lexIndex] != '#', -1);
     lexIndex++; col++;
     return lexNextToken();
-  } else if (isalpha(firstChar)) { // identifier
+  } else if (isalpha(firstChar) || firstChar == '_') { // identifier
     addToken(isalpha(script[lexIndex]) || isdigit(script[lexIndex]) || script[lexIndex] == '_', TOKEN_IDENTIFIER);
     return token;
   } else if (isdigit(firstChar)) { // number
