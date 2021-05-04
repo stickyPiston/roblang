@@ -23,7 +23,7 @@ if os_type == "Windows":
   os.makedirs("bin", exist_ok=True)
   os.chdir("bin")
   print(">> Configuring project with CMake")
-  subprocess.call(["cmake", "-DLLVM_DIR=..\\llvm\\lib\\cmake\\llvm", ".."])
+  subprocess.call(["cmake", "-DLLVM_DIR=llvm\\lib\\cmake\\llvm", ".."])
 
 else:
   if os.path.exists("/usr/local/lib/cmake/llvm"):
@@ -54,7 +54,7 @@ else:
 
   os.makedirs("bin", exist_ok=True)
   os.chdir("bin")
-  cmake_args = "-DLLVM_DIR=../llvm/" + basename + "/lib/cmake/llvm"
+  cmake_args = "-DLLVM_DIR=llvm/" + basename + "/lib/cmake/llvm"
   print(">> Configuring project with CMake (" + cmake_args + ")")
   subprocess.call(["cmake", cmake_args, ".."])
 
