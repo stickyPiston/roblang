@@ -9,7 +9,7 @@ char *readFile(char *filename) {
   int fileSize = ftell(fp);
   fseek(fp, 0, SEEK_SET);
 
-  char *fileContents = malloc(fileSize + 1);
+  char *fileContents = calloc(fileSize + 1, 1);
   fread(fileContents, 1, fileSize, fp);
 
   fclose(fp);

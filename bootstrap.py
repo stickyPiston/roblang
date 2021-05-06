@@ -13,7 +13,7 @@ print("System info: \n OS: " + os_type + "\n Arch: " + platform.uname().machine 
 
 if os_type == "Windows":
   dest_file = "llvm.7z"
-  download_url = "https://github.com/ldc-developers/llvm-project/releases/download/ldc-v11.0.1/llvm-11.0.1-windows-x86.7z"
+  download_url = "https://github.com/ldc-developers/llvm-project/releases/download/ldc-v11.0.1/llvm-11.0.1-windows-x64.7z"
   print(">> Downloading " + download_url + " as llvm.tar.xz")
   with urllib.request.urlopen(download_url) as response, open(dest_file, 'wb') as out_file:
     shutil.copyfileobj(response, out_file)
