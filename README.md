@@ -1,5 +1,7 @@
 # Roblang
 
+[![Build and test](https://github.com/stickyPiston/roblang/actions/workflows/build.yml/badge.svg)](https://github.com/stickyPiston/roblang/actions/workflows/build.yml)
+
 Another programming language, but this one does less than any other.
 
 ## Purpose
