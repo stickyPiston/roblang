@@ -296,17 +296,26 @@ Roblang provides a basic set of operators:
 **Arithmetic:**
 
 - `+`: Arithmetic addition (`add` assembly instruction)
+- `+=`: `LHS += RHS` equal to `LHS = LHS + RHS`
 - `-`: Arithmetic subtraction (`sub` assembly instruction)
+- `-=`: `LHS -= RHS` equal to `LHS = LHS - RHS`
 - `*`: Arithmetic multiplication (`mul` or `imul` assembly instruction)
+- `*=`: `LHS *= RHS` equal to `LHS = LHS * RHS`
 - `/`: Arithmetic multiplication (`div` assembly instruction)
+- `/=`: `LHS /= RHS` equal to `LHS = LHS / RHS`
 
 **Binary:**
 
 - `<<`: Binary shift left (`shl` assembly instruction). The right-hand side is the number of shifts to be done to the left-hand side.
+- `<<=`: `LHS <<= RHS` is equal to `LHS = LHS << RHS`
 - `>>`: Binary shift right (`shl` assembly instruction). The right-hand side is the number of shifts to be done to the left-hand side.
+- `>>=`: `LHS >>= RHS` is equal to `LHS = LHS >> RHS`
 - `&`: Binary and (`and` assembly instruction)
+- `&=`: `LHS &= RHS` is equal to `LHS = LHS & RHS`
 - `|`: Binary or (`or` assembly instruction)
+- `|=`: `LHS |= RHS` is equal to `LHS = LHS | RHS`
 - `^`: Binary xor (`xor` assembly instruction)
+- `^=`: `LHS ^= RHS` is equal to `LHS = LHS ^ RHS`
 
 **Logic:**
 
@@ -339,6 +348,8 @@ True in this section refers to any thruthy value. Thruthy values are any values 
 - `>=`: Greater than or equal to, should yield true when the left-hand side is greater than or equal to the right-hand side, otherwise false is yielded.
 - `==`: Equals, should yield true when the two operands are equal, otherwise false is yielded.
 - `!=`: Does not equal, yields true when the two operands are not equal, otherwise false is yielded.
+- `&&=`: `LHS &&= RHS`, RHS is assigned to LHS if LHS is a thruthy value.
+- `||=`: `LHS ||= RHS`, RHS is assigned to LHS if LHS is not a thruthy value.
 
 ### 2 Grammar
 
