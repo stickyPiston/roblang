@@ -1,78 +1,63 @@
-#
-Roblang example syntax and grammer file
+# Basic Vector type (struct) #
+Vector<T> = { size: i32, items: T* };
 
-Roblang is a C-esque programming language, but without
-keywords. Control structures are functions and structs
-and arrays do not exist. Furthermore, there is no type
-system. And roblang uses the C standard library. Which
-means roblang code can easily be linked against C and C++
-scripts.
-
-Roblang requires the programmer to do a lot of manual
-pointer logic. That is, the developer needs to calculate
-offsets manually for structs and arrays.
-#
-
-main = (argc, argv) -> {
-  # variables do not have types, that is, everything is a uint8 by default #
-  value = 5;
-
-  value2 = if(cond, # true #() -> { 10; }, # false #() -> { 20; }) * 10; # (cond ? 10 : 20) * 10 #
-  # linked against the c lib 
-    yields 10 * 20 + 2 = 202 #
-  printf("%d\n", 10 * value + 2);
-
-  hello = (name) -> {
-    greeting = malloc(strlen(name) + strlen("Hello, ") + 1);
-    greeting = "Hello, ";
-    strcat(greeting, name);
-    greeting; # The last expression is returned #
-  };
-
-  printf("%s\n", hello("John"));
-
-  # Mathematical expressions #
-  x = 20 * (10 + 50) / 5;
-
-  ReturnAFunction = () -> {
-    (something) -> { printf("%s\n", something); };
-  };
-
-  ReturnAFunction()("Hello!");
-
-  # functions can be used inline #
-  () -> {
-    # anonymous functions can be called in an expression #
-    printf("%d", () -> { 20; }() + 50);
-  }();
-
-  # building an int array ([10, 20, 30, 40]) #
-  ints = malloc(4 * 4); # assume int is 4 bytes #
-  *ints = 10; # a "*" before means "the value at address" #
-  *(ints + 4) = 20;
-  *(ints + 8) = 30;
-  *(ints + 12) = 40;
-
-  # building a struct ({ char *name = "Hammer", int likes = 113 }) #
-  song = malloc(8 + 4) # assume char* = 8 bytes and int = 4 bytes #
-  *song = "Hammer";
-  songNameCopy = *song; # songNameCopy contains 'H' #
-  *(song + 8) = 113;
-
-  printf("The song's name is %s", *song);
-  printf("songNameCopy's content is %s", songNameCopy);
-
-  # Control flow #
-  if(value == 20, () -> {
-    puts("value is equal to 20!");
+# Method implementation for a type (similar to rust's impl) #
+Vector<T>.push = (v: Vector<T>, i: T): void -> {
+  if(v.size == 0, () -> {
+    v.items = malloc(sizeof(T));
+    v.items[v.size++] = i;
   }, () -> {
-    puts("value is not equal to 20!");
+    v.items = realloc(v.items, ++v.size * sizeof(T));
+    v.items[v.size - 1] = i;
+  });
+};
+
+# Operator overloading #
+Vector<T>[] = (v, i: i32): T -> {
+  return(v.items[i]);
+};
+Vector<T> + Vector<T> = (a, b): Vector<T> -> {
+  i = 0;
+  while(() -> { return(i < b.size); }, () -> {
+    a.push(b[i]); # b[i] calls Vector<T>[] #
+  });
+  return(a);
+};
+
+# Function overloading #
+# A typename can also be used as a function name
+  This would be useful for creating constructors for types #
+Vector<T> = (): Vector<T> -> {
+  return({ 0, NULL });
+};
+Vector<T> = (size: i32): Vector<T> -> {
+  return({ size, malloc(size * sizeof(T)) });
+};
+
+# Restrict the types that a function can take #
+createNode<T = FunctionNode | BinopNode | NumberNode | IdentifierNode> = () -> {
+  # ... #
+};
+
+# Enums (same syntax as struct but without type declarations) #
+NodeType = { FUNCTION, VARIABLE, BINOP };
+# Access these elements by e.g. NodeType.FUNCTION
+  NodeType is also a type so (type: NodeType) -> { ... } is possible #
+
+# Type aliasing #
+String = i8*;
+
+main = (argc: i32, argv: String*): u8 -> {
+  # Type notation can be left out if it can be inferred #
+  list = Vector<String>();
+  # Would be equal to list: Vector<String> = Vector<String>(); #
+
+  while(() -> { return(argc > 0); }, () -> {
+    # You don't need to pass the list as the first argument of the push function
+      roblang does it for you when you use the method call syntax (using .) #
+    list.push(argv[argc]);
+    argc--;
   });
 
-  index = 0;
-  while(() -> { index < argc; }, () -> {
-    # calculate the offset yourself, assume char* = 8 bytes #
-    printf("arg %d: %s", index, argv + index * 8); 
-    index = index + 1;
-  });
+  return(0);
 };
